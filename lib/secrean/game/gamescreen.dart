@@ -131,7 +131,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       player.update(moveDirection);
 
       if (player.position.x > cameraOffset + 400) {
-        cameraOffset = 0 - 400;
+        cameraOffset = player.position.x - 400;
       }
 
       bool isOnPlatform = false;

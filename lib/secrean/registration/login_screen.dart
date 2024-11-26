@@ -1,8 +1,9 @@
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
-import 'package:kemo/secrean/game/levelselectionscreen.dart';
-import 'registration_screen.dart';
+import 'package:kemo/main.dart';
+import 'package:kemo/model/api_service.dart';
+import 'package:kemo/secrean/registration/registration_screen.dart'; // تأكد من إنشاء هذا الملف لتوفير دوال الاتصال بالخادم
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final apiService = ApiService(); // الكائن المستخدم للاتصال بالـ API
   String _email = '';
   String _password = '';
 
@@ -96,16 +98,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 40),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 _formKey.currentState!.save();
-                                // TODO: Implement actual login logic here
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LevelSelectionScreen()),
-                                );
+                                final result =
+                                    await apiService.login(_email, _password);
+                                if (result['success']) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LevelSelectionScreen()),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        result['error']['detail'] ??
+                                            'Login failed',
+                                      ),
+                                    ),
+                                  );
+                                }
                               }
                             },
                             child: const Text('Login'),
